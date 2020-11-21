@@ -1,6 +1,10 @@
 #pragma once
 #include "defines.h"
 
+#define MAX_LABEL_SIZE 50
+#define OPCODE_SIZE 2
+#define REGISTER_SIZE 1
+
 /*
  * TODO: add description.
  *
@@ -18,19 +22,10 @@ void string_to_reg(char* reg, char* res);
  */
 void string_to_opcode(char* opcode, char* res);
 
+void decimal_to_hex(int dec, char *res);
 
 /*
- * convert num from decimal to binary.
- *
- * @param num in decimal representation.
- * @param string which stored the return value.
- */
-void decimal_to_binary(int num, char* res, int size);
-
-/*
- * convert num from hexadecimal to binary.
- *
- * @param num in hexadecimal representation - e.g 0xFF.
- * @param string which stored the return value.
- */
-void hex_to_binary(char* num, char* res, int size);
+ *edit cmd string to add a delimiter between each part of the command.
+ *use | between each part, and a @ as the ending of the command.
+*/
+void parse_command(char *cmd, char *res);

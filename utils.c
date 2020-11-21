@@ -23,7 +23,7 @@ void string_to_reg(char* reg, char* res)
 	if (!strcmp(reg, "$fp")) reg_num = FP;
 	if (!strcmp(reg, "$ra")) reg_num = RA;
 
-	decimal_to_binary(reg_num, res ,4);
+	decimal_to_hex(reg_num, res);
 }
 
 void string_to_opcode(char* opcode, char* res) 
@@ -52,25 +52,58 @@ void string_to_opcode(char* opcode, char* res)
 	if(!strcmp(opcode,"out")) opcode_num = OUT;
 	if (!strcmp(opcode, "halt")) opcode_num = HALT;
 
-	decimal_to_binary(opcode_num, res, 5);
+	decimal_to_hex(opcode_num, res);
 }
 
-void decimal_to_binary(int num, char* res ,int size)
+void decimal_to_hex(int dec, char *res)
 {
-	for (int i = 0; i < size; i++) { //TODO: check if its needed
-		*res = '0';
-		res++;
-	}
-	res--;
-	while (num > 0) {
-		*res = (num%2==1) ? '1' : '0';
-		num = num / 2;
-		res--;
-	}
+	printf("next to hex %d\n", dec);
+	sprintf_s(res, "%x", dec);
 }
 
-void hex_to_binary(char* num, char* res ,int size) 
+char is_label(char *str)
 {
-	int decimal = strtol(num, 0, 16); /*convert to int*/
-	decimal_to_binary(decimal, res, size);
+	for (int i=0; i < MAX_LABEL_SIZE; i++) {
+		char c = str[i];
+		if (c == '#' || c == '\n' || c == '\0') {
+			return 0;
+		}
+		if (c == ':') {
+			return 1;
+		}
+	}
+	return 0;
+}
+
+char parse_command(char *cmd, char *res)
+{
+	if (is_label(cmd) == 1) {
+		/* handle label */
+		printf("got a label\n");
+		return 0;
+	}
+	/* parsing a regular command */
+	char *runner = cmd;
+	char is_op = 1;
+	while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
+	while (runner[0] != '#' && runner[0] != '\n') {
+		char *word_ending = runner;
+		while (word_ending[0] != ',' && word_ending[0] != ' ' && word_ending[0] != '\t') { word_ending++; }
+		*word_ending = 0;
+		if (is_op == 1) {
+			string_to_opcode(runner, res);
+			is_op = 0;
+			res = res + OPCODE_SIZE;
+		}
+		else if (runner[0] == '$'){
+			string_to_reg(runner, res);
+			res = res + REGISTER_SIZE;
+		}
+		else {
+			printf("got a imm const");
+		}
+		*word_ending = "@";
+		runner = word_ending + 1;
+	}
+	/* check if \0 is needed at the end of res */
 }
