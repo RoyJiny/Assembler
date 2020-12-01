@@ -11,8 +11,8 @@ void main(int argc, char* argv) {
 	s1[49] = 0;
 	parse_command(s, s1);
 	printf("res is: %s", s1);
-	//free(s);
-	//free(s1);
+	free(s);
+	free(s1);
 
 	while (1) {}
 }

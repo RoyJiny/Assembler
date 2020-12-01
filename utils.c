@@ -23,7 +23,7 @@ void string_to_reg(char* reg, char* res)
 	if (!strcmp(reg, "$fp")) reg_num = FP;
 	if (!strcmp(reg, "$ra")) reg_num = RA;
 
-	decimal_to_hex(reg_num, res);
+	decimal_to_hex(reg_num, res, REGISTER_SIZE);
 }
 
 void string_to_opcode(char* opcode, char* res) 
@@ -52,13 +52,18 @@ void string_to_opcode(char* opcode, char* res)
 	if(!strcmp(opcode,"out")) opcode_num = OUT;
 	if (!strcmp(opcode, "halt")) opcode_num = HALT;
 
-	decimal_to_hex(opcode_num, res);
+	if (opcode_num <= 15) { /*zero padding*/
+		res[0] = '0';
+		res++;
+	}
+	decimal_to_hex(opcode_num, res, OPCODE_SIZE);
 }
 
-void decimal_to_hex(int dec, char *res)
+void decimal_to_hex(int dec, char *res, int size)
 {
 	printf("next to hex %d\n", dec);
-	sprintf_s(res, "%x", dec);
+	sprintf_s(res, 5,"%x", dec);
+	printf("%s\n", res);
 }
 
 char is_label(char *str)
@@ -91,11 +96,13 @@ char parse_command(char *cmd, char *res)
 		while (word_ending[0] != ',' && word_ending[0] != ' ' && word_ending[0] != '\t') { word_ending++; }
 		*word_ending = 0;
 		if (is_op == 1) {
+			printf("op code detected\n");
 			string_to_opcode(runner, res);
 			is_op = 0;
 			res = res + OPCODE_SIZE;
 		}
 		else if (runner[0] == '$'){
+			printf("reg detected\n");
 			string_to_reg(runner, res);
 			res = res + REGISTER_SIZE;
 		}
@@ -104,6 +111,9 @@ char parse_command(char *cmd, char *res)
 		}
 		*word_ending = "@";
 		runner = word_ending + 1;
+		while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
+		printf("%s\n", runner);
+		printf("res is %s", res);
 	}
 	/* check if \0 is needed at the end of res */
 }

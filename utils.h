@@ -22,7 +22,7 @@ void string_to_reg(char* reg, char* res);
  */
 void string_to_opcode(char* opcode, char* res);
 
-void decimal_to_hex(int dec, char *res);
+void decimal_to_hex(int dec, char *res, int size);
 
 /*
  *edit cmd string to add a delimiter between each part of the command.
