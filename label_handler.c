@@ -2,12 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "defines.h"
 
 char *labels_array;
 char *addresses_array;
 int next_free_slot;
 
 char is_null(char c) { return c == 0; }
+
 
 void extract_label_from_cmd(char *cmd, char *res)
 {
@@ -82,7 +84,7 @@ char compare_label_in_array_index(int index, char *label)
 		label_runner++;
 		compared_chars_counter++;
 	}
-	return 1;
+	return (is_null(array_runner[0]) && is_null(label_runner[0])) || compared_chars_counter == MAX_LABEL_SIZE;
 }
 
 char get_address_from_label(char *label, char *res)

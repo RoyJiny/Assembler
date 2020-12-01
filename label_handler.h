@@ -1,8 +1,5 @@
 #pragma once
 
-#define MAX_AMOUNT_OF_LABELS 100
-#define MAX_LABEL_SIZE 50
-#define ADDRESS_SIZE 4
 
 /*
 * extract the label string from cmd line

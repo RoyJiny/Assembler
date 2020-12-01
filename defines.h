@@ -1,5 +1,12 @@
 #pragma once
 
+#define MAX_AMOUNT_OF_LABELS 100
+#define MAX_LABEL_SIZE 50
+#define ADDRESS_SIZE 8
+#define MAX_LINE_SIZE 500
+#define OPCODE_SIZE 2
+#define REGISTER_SIZE 1
+
 typedef enum {
 	ADD,
 	SUB,
