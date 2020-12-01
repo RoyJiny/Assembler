@@ -23,7 +23,7 @@ typedef enum {
 	IN,
 	OUT,
 	HALT
-}OPcode;
+} OPcode;
 
 typedef enum {
 	ZERO,
@@ -42,4 +42,4 @@ typedef enum {
 	SP,
 	FP,
 	RA
-}Register;
+} Register;

@@ -1,7 +1,7 @@
 #pragma once
 #include "defines.h"
+#include "label_handler.h"
 
-#define MAX_LABEL_SIZE 50
 #define OPCODE_SIZE 2
 #define REGISTER_SIZE 1
 
@@ -10,8 +10,9 @@
  *
  * @param register string to be converted , e.g $t1.
  * @param string which stored the return value, required size is 4.
+ * @ret return the register number that was written to res
  */
-void string_to_reg(char* reg, char* res);
+int string_to_reg(char* reg, char* res);
 
 
 /*
@@ -27,5 +28,6 @@ void decimal_to_hex(int dec, char *res, int size);
 /*
  *edit cmd string to add a delimiter between each part of the command.
  *use | between each part, and a @ as the ending of the command.
+ * @ret returns if the line was a label or not
 */
-void parse_command(char *cmd, char *res);
+char parse_command(char *cmd, char *res);

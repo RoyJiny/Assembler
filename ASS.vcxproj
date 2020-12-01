@@ -125,10 +125,12 @@
   <ItemGroup>
     <ClInclude Include="defines.h" />
     <ClInclude Include="utils.h" />
+    <ClInclude Include="label_handler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="test.c" />
     <ClCompile Include="utils.c" />
+    <ClCompile Include="label_handler.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />

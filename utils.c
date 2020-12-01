@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-void string_to_reg(char* reg, char* res)
+int string_to_reg(char* reg, char* res)
 {
-	int reg_num;
+	int reg_num = 0;
 	if (!strcmp(reg, "$zero")) reg_num = ZERO;
 	if (!strcmp(reg, "$imm")) reg_num = IMM;
 	if (!strcmp(reg, "$v0")) reg_num = V0;
@@ -24,11 +24,12 @@ void string_to_reg(char* reg, char* res)
 	if (!strcmp(reg, "$ra")) reg_num = RA;
 
 	decimal_to_hex(reg_num, res, REGISTER_SIZE);
+	return reg_num;
 }
 
 void string_to_opcode(char* opcode, char* res) 
 {
-	int opcode_num;
+	int opcode_num = 0;
 	if(!strcmp(opcode,"add")) opcode_num = ADD;
 	if(!strcmp(opcode,"sub")) opcode_num = SUB;
 	if(!strcmp(opcode,"and")) opcode_num = AND;
@@ -61,9 +62,7 @@ void string_to_opcode(char* opcode, char* res)
 
 void decimal_to_hex(int dec, char *res, int size)
 {
-	printf("next to hex %d\n", dec);
 	sprintf_s(res, 5,"%x", dec);
-	printf("%s\n", res);
 }
 
 char is_label(char *str)
@@ -82,14 +81,20 @@ char is_label(char *str)
 
 char parse_command(char *cmd, char *res)
 {
+	printf("command to be parsed: %s", cmd);
 	if (is_label(cmd) == 1) {
-		/* handle label */
-		printf("got a label\n");
+		printf("got a label, trying to parse: \n");
+		char *label = (char*)malloc(100 * sizeof(char));
+		memset(label, 'a', 100);
+		label[99] = 0;
+		extract_label_from_cmd(cmd, label);
+		printf("the label from extraction: %s.", label);
 		return 0;
 	}
 	/* parsing a regular command */
 	char *runner = cmd;
 	char is_op = 1;
+	char has_imm = 0;
 	while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
 	while (runner[0] != '#' && runner[0] != '\n') {
 		char *word_ending = runner;
@@ -103,17 +108,25 @@ char parse_command(char *cmd, char *res)
 		}
 		else if (runner[0] == '$'){
 			printf("reg detected\n");
-			string_to_reg(runner, res);
+			int reg = string_to_reg(runner, res);
+			if (reg == IMM) {
+				has_imm = 1;
+			}
 			res = res + REGISTER_SIZE;
 		}
 		else {
-			printf("got a imm const");
+			printf("got a imm const, ");
+			if (has_imm) {
+				printf("should use it\n");
+			} else {
+				printf("shouldnt use it\n");
+			}
 		}
-		*word_ending = "@";
+		*word_ending = '@';
 		runner = word_ending + 1;
 		while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
-		printf("%s\n", runner);
-		printf("res is %s", res);
+		printf("line leftovers: %s\n", runner);
 	}
+	return 1;
 	/* check if \0 is needed at the end of res */
 }
