@@ -1,9 +1,10 @@
 #pragma once
-#include "defines.h"
-#include "label_handler.h"
 
-#define OPCODE_SIZE 2
-#define REGISTER_SIZE 1
+
+typedef enum { LABEL, IMMEDIATE, NONE }line_type;
+
+line_type get_line_type(char* line);
+
 
 /*
  * TODO: add description.

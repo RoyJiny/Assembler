@@ -1,7 +1,10 @@
+#define _CRT_SECURE_NO_WARNINGS
 #include "utils.h"
+#include "defines.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 int string_to_reg(char* reg, char* res)
 {
@@ -53,42 +56,35 @@ void string_to_opcode(char* opcode, char* res)
 	if(!strcmp(opcode,"out")) opcode_num = OUT;
 	if (!strcmp(opcode, "halt")) opcode_num = HALT;
 
-	if (opcode_num <= 15) { /*zero padding*/
-		res[0] = '0';
-		res++;
-	}
 	decimal_to_hex(opcode_num, res, OPCODE_SIZE);
 }
 
 void decimal_to_hex(int dec, char *res, int size)
 {
-	sprintf_s(res, 5,"%x", dec);
+	char format[5];	sprintf(format, "%%0%dx", size);	sprintf(res, format, dec);
 }
 
-char is_label(char *str)
+
+line_type get_line_type(char* line)
 {
-	for (int i=0; i < MAX_LABEL_SIZE; i++) {
-		char c = str[i];
+	for (int i = 0; i < MAX_LINE_SIZE; i++) {
+		char c = line[i];
 		if (c == '#' || c == '\n' || c == '\0') {
-			return 0;
+			return NONE;
 		}
-		if (c == ':') {
-			return 1;
+		if (c == ':') return LABEL;
+		if (c == '$') {
+			if (strcmp("$imm", line + i) == 0) return IMMEDIATE;
 		}
 	}
-	return 0;
+	return NONE;
 }
 
 char parse_command(char *cmd, char *res)
 {
 	printf("command to be parsed: %s", cmd);
-	if (is_label(cmd) == 1) {
+	if (get_line_type(cmd) == LABEL) {
 		printf("got a label, trying to parse: \n");
-		char *label = (char*)malloc(100 * sizeof(char));
-		memset(label, 'a', 100);
-		label[99] = 0;
-		extract_label_from_cmd(cmd, label);
-		printf("the label from extraction: %s.", label);
 		return 0;
 	}
 	/* parsing a regular command */
