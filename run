@@ -1,0 +1,6 @@
+make
+echo "finished build"
+echo ""
+echo ""
+echo ""
+./assembler

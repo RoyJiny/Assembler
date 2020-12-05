@@ -18,18 +18,36 @@ void first_run(FILE* program)
 	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
 	{
 		lt = get_line_type(line);
-		if (lt == LABEL)
+		if (lt & LABEL)
 		{
 			extract_label_from_cmd(line, label);
 			decimal_to_hex(PC, addr, ADDRESS_SIZE);
 			insert_label(label, addr);
-			printf("the label from extraction: %s, and addr: %s.\n", label,addr);
 		}
-		if (lt == IMMEDIATE) PC++; /*immidiate require an additional line*/
+		if (lt & IMMEDIATE) PC++; /*immidiate require an additional line*/
 		PC++;
 	}
 	free(label);
 	free(addr);
+}
+
+void second_run(FILE* program) 
+{
+	int PC = 0;
+	line_type lt;
+	char line[MAX_LINE_SIZE];
+	char cmd[2*MAX_LINE_SIZE+1];
+	FILE* output = fopen("./imemin.txt", "w");
+	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
+	{
+		lt = get_line_type(line);
+		char is_writing = parse_command(line, cmd, lt);
+		if (is_writing) {
+			fputs(cmd, output);
+			PC++;
+		}
+	}
+	fclose(output);
 }
 
 

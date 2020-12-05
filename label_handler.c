@@ -16,7 +16,7 @@ void extract_label_from_cmd(char *cmd, char *res)
 	char *cmd_runner = cmd;
 	char *res_runner = res;
 	while (cmd_runner[0] == ' ') { cmd_runner++; }
-	while (cmd_runner[0] != ':') {
+	while (cmd_runner[0] != ':' && cmd_runner[0] != ' ') {
 		*res_runner = *cmd_runner;
 		res_runner++;
 		cmd_runner++;

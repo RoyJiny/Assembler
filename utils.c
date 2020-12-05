@@ -1,4 +1,3 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include "utils.h"
 #include "defines.h"
 #include <stdio.h>
@@ -61,38 +60,91 @@ void string_to_opcode(char* opcode, char* res)
 
 void decimal_to_hex(int dec, char *res, int size)
 {
-	char format[5];	sprintf(format, "%%0%dx", size);	sprintf(res, format, dec);
+	char format[5];
+	sprintf(format, "%%0%dx", size);
+	sprintf(res, format, dec);
 }
 
 
 line_type get_line_type(char* line)
 {
+	line_type lt = NONE;
 	for (int i = 0; i < MAX_LINE_SIZE; i++) {
 		char c = line[i];
 		if (c == '#' || c == '\n' || c == '\0') {
-			return NONE;
+			return lt;
 		}
-		if (c == ':') return LABEL;
-		if (c == '$') {
-			if (strcmp("$imm", line + i) == 0) return IMMEDIATE;
+		if (c == ':') lt = lt | LABEL;
+		if (c == '$' && line[i+1] == 'i' && line[i+2] == 'm' && line[i+3] == 'm') {
+			lt = lt | IMMEDIATE;
+		}
+		if (c == 'j' && line[i+1] == 'a' && line[i+2] == 'l') {
+			lt = lt | JUMP;
+		}
+		if (c == 'b' && (line[i+1] == 'l' || line[i+1] == 'n' || line[i+1] == 'g')) {
+			/* TODO: test that the string is not a label with same letters */
+			lt = lt | BRANCH;
 		}
 	}
-	return NONE;
+	return lt;
 }
 
-char parse_command(char *cmd, char *res)
+void switch_label(char *res, char *label)
 {
+	printf("changing label with value\n");
+	char *label_runner = label;
+	while (label_runner[0] != ' ' && label_runner[0] != '\t' && label_runner[0] != '#' && label_runner[0] != '\n') {
+		label_runner++;
+	}
+	*label_runner = 0;
+	get_address_from_label(label, res);
+	res += ADDRESS_SIZE;
+	*label_runner = '@';
+}
+
+void write_immediate(char *res, char *imm)
+{
+	printf("adding imm line\n");
+	res[0] = '\n';
+	res++;
+	if (imm[0] == '0' && imm[1] == 'x') {
+		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n') {
+			*res = *imm;
+			res++;
+			imm++;
+		}
+	} else {
+		char *imm_runner = imm;
+		while(imm_runner[0] != ' ' && imm_runner[0] != '\t' && imm_runner[0] != '#' && imm_runner[0] != '\n') {
+			imm_runner++;
+		}
+		imm_runner[0] = 0;
+		int dec = atoi(imm);
+		printf("writing imm %d\n", dec);
+		decimal_to_hex(dec, res, 5);
+		res += 5;
+		imm_runner[0] = '@';
+	}
+}
+
+char parse_command(char *cmd, char *res, line_type lt)
+{
+	char is_writing = 1;
 	printf("command to be parsed: %s", cmd);
-	if (get_line_type(cmd) == LABEL) {
-		printf("got a label, trying to parse: \n");
-		return 0;
+	char *runner = cmd;
+	if (lt == LABEL) {
+		printf("got a label line");
+		while(runner[0] != ':') { runner++; }
+		runner ++;
+		printf("after skipping: .%s.", runner);
+		is_writing = 0;
 	}
 	/* parsing a regular command */
-	char *runner = cmd;
 	char is_op = 1;
-	char has_imm = 0;
 	while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
 	while (runner[0] != '#' && runner[0] != '\n') {
+		while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
+		is_writing = 1;
 		char *word_ending = runner;
 		while (word_ending[0] != ',' && word_ending[0] != ' ' && word_ending[0] != '\t') { word_ending++; }
 		*word_ending = 0;
@@ -104,25 +156,28 @@ char parse_command(char *cmd, char *res)
 		}
 		else if (runner[0] == '$'){
 			printf("reg detected\n");
-			int reg = string_to_reg(runner, res);
-			if (reg == IMM) {
-				has_imm = 1;
-			}
+			string_to_reg(runner, res);
 			res = res + REGISTER_SIZE;
 		}
 		else {
 			printf("got a imm const, ");
-			if (has_imm) {
+			if (lt & IMMEDIATE) {
 				printf("should use it\n");
+				write_immediate(res, runner);
+			} else if (lt & (BRANCH | JUMP)) {
+				printf("has jump/branch\n");
+				switch_label(res, runner);
 			} else {
 				printf("shouldnt use it\n");
 			}
+			*res = '\n';
+			*(res+1) = 0;
+			return is_writing;
 		}
 		*word_ending = '@';
 		runner = word_ending + 1;
-		while (runner[0] == ' ' || runner[0] == '\t') { runner++; }
 		printf("line leftovers: %s\n", runner);
 	}
-	return 1;
+	return is_writing;
 	/* check if \0 is needed at the end of res */
 }

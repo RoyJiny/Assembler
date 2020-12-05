@@ -1,7 +1,7 @@
 #pragma once
 
 
-typedef enum { LABEL, IMMEDIATE, NONE }line_type;
+typedef enum { LABEL=1, IMMEDIATE=2, BRANCH=4, JUMP=8, NONE=0 } line_type;
 
 line_type get_line_type(char* line);
 
@@ -31,4 +31,4 @@ void decimal_to_hex(int dec, char *res, int size);
  *use | between each part, and a @ as the ending of the command.
  * @ret returns if the line was a label or not
 */
-char parse_command(char *cmd, char *res);
+char parse_command(char *cmd, char *res, line_type lt);
