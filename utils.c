@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "defines.h"
+#include "label_handler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +8,8 @@
 
 int string_to_reg(char* reg, char* res)
 {
-	int reg_num = 0;
+	printf("reg got is %s\n", reg);
+	int reg_num = -1;
 	if (!strcmp(reg, "$zero")) reg_num = ZERO;
 	if (!strcmp(reg, "$imm")) reg_num = IMM;
 	if (!strcmp(reg, "$v0")) reg_num = V0;
@@ -29,9 +31,9 @@ int string_to_reg(char* reg, char* res)
 	return reg_num;
 }
 
-void string_to_opcode(char* opcode, char* res) 
+int string_to_opcode(char* opcode, char* res) 
 {
-	int opcode_num = 0;
+	int opcode_num = -1;
 	if(!strcmp(opcode,"add")) opcode_num = ADD;
 	if(!strcmp(opcode,"sub")) opcode_num = SUB;
 	if(!strcmp(opcode,"and")) opcode_num = AND;
@@ -56,6 +58,7 @@ void string_to_opcode(char* opcode, char* res)
 	if (!strcmp(opcode, "halt")) opcode_num = HALT;
 
 	decimal_to_hex(opcode_num, res, OPCODE_SIZE);
+	return opcode_num;
 }
 
 void decimal_to_hex(int dec, char *res, int size)
@@ -78,18 +81,11 @@ line_type get_line_type(char* line)
 		if (c == '$' && line[i+1] == 'i' && line[i+2] == 'm' && line[i+3] == 'm') {
 			lt = lt | IMMEDIATE;
 		}
-		if (c == 'j' && line[i+1] == 'a' && line[i+2] == 'l') {
-			lt = lt | JUMP;
-		}
-		if (c == 'b' && (line[i+1] == 'l' || line[i+1] == 'n' || line[i+1] == 'g')) {
-			/* TODO: test that the string is not a label with same letters */
-			lt = lt | BRANCH;
-		}
 	}
 	return lt;
 }
 
-void switch_label(char *res, char *label)
+void switch_label(char **res, char *label, int PC, line_type lt)
 {
 	printf("changing label with value\n");
 	char *label_runner = label;
@@ -97,20 +93,20 @@ void switch_label(char *res, char *label)
 		label_runner++;
 	}
 	*label_runner = 0;
-	get_address_from_label(label, res);
-	res += ADDRESS_SIZE;
+	get_address_from_label(label, *res, PC, (lt & JUMP) > 0);
+	(*res) += ADDRESS_SIZE / 4;
 	*label_runner = '@';
 }
 
-void write_immediate(char *res, char *imm)
+void write_immediate(char **res, char *imm)
 {
 	printf("adding imm line\n");
-	res[0] = '\n';
-	res++;
+	*res[0] = '\n';
+	(*res)++;
 	if (imm[0] == '0' && imm[1] == 'x') {
 		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n') {
-			*res = *imm;
-			res++;
+			**res = *imm;
+			(*res)++;
 			imm++;
 		}
 	} else {
@@ -121,18 +117,18 @@ void write_immediate(char *res, char *imm)
 		imm_runner[0] = 0;
 		int dec = atoi(imm);
 		printf("writing imm %d\n", dec);
-		decimal_to_hex(dec, res, 5);
-		res += 5;
+		decimal_to_hex(dec, *res, 5);
+		(*res) += 5;
 		imm_runner[0] = '@';
 	}
 }
 
-char parse_command(char *cmd, char *res, line_type lt)
+char parse_command(char *cmd, char *res, int PC ,line_type lt)
 {
 	char is_writing = 1;
 	printf("command to be parsed: %s", cmd);
 	char *runner = cmd;
-	if (lt == LABEL) {
+	if (lt & LABEL) {
 		printf("got a label line");
 		while(runner[0] != ':') { runner++; }
 		runner ++;
@@ -150,25 +146,30 @@ char parse_command(char *cmd, char *res, line_type lt)
 		*word_ending = 0;
 		if (is_op == 1) {
 			printf("op code detected\n");
-			string_to_opcode(runner, res);
+			int opcode = string_to_opcode(runner, res);
+			handle_errors("parse command", "illegal opcode:",runner, opcode == -1);
 			is_op = 0;
 			res = res + OPCODE_SIZE;
+			printf("opcode number is %d\n", opcode);
+			if (opcode == 15) lt = lt | JUMP;
+			if (opcode >= 9 && opcode <= 14) lt = lt | BRANCH;
 		}
 		else if (runner[0] == '$'){
 			printf("reg detected\n");
-			string_to_reg(runner, res);
+			int reg = string_to_reg(runner, res);
+			handle_errors("parse command", "illegal register:",runner, reg == -1);
 			res = res + REGISTER_SIZE;
 		}
 		else {
 			printf("got a imm const, ");
 			if (lt & IMMEDIATE) {
 				printf("should use it\n");
-				write_immediate(res, runner);
+				write_immediate(&res, runner);
 			} else if (lt & (BRANCH | JUMP)) {
 				printf("has jump/branch\n");
-				switch_label(res, runner);
+				switch_label(&res, runner, PC, lt);
 			} else {
-				printf("shouldnt use it\n");
+				printf("shouldnt be here\n");
 			}
 			*res = '\n';
 			*(res+1) = 0;

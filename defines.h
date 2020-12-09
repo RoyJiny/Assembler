@@ -7,6 +7,14 @@
 #define OPCODE_SIZE 2
 #define REGISTER_SIZE 1
 
+#define handle_errors(name, msg, value,condition)\
+	do{\
+		if(condition){\
+			fprintf(stderr, "[%s]: %s %s\n" ,name ,msg, value);\
+			exit(1);\
+		}\
+	}while(0)
+
 typedef enum {
 	ADD,
 	SUB,

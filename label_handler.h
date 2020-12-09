@@ -28,6 +28,8 @@ void insert_label(char *label, char *address);
 * convert label into address
 * @param the label to be converted
 * @param pre allocated space to write the address in
+* @param PC = current line number
+* @param cmd_type: 0 - jump, 1- branch
 * @ret if found or not
 */
-char get_address_from_label(char *label, char *res);
+char get_address_from_label(char *label, char *res, int PC, char cmd_type);

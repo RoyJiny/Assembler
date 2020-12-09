@@ -41,7 +41,7 @@ void second_run(FILE* program)
 	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
 	{
 		lt = get_line_type(line);
-		char is_writing = parse_command(line, cmd, lt);
+		char is_writing = parse_command(line, cmd, PC, lt);
 		if (is_writing) {
 			fputs(cmd, output);
 			PC++;

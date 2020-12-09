@@ -22,7 +22,7 @@ int string_to_reg(char* reg, char* res);
  * @param opcode string to be converted , e.g add.
  * @param string which stored the return value.
  */
-void string_to_opcode(char* opcode, char* res);
+int string_to_opcode(char* opcode, char* res);
 
 void decimal_to_hex(int dec, char *res, int size);
 
@@ -31,4 +31,4 @@ void decimal_to_hex(int dec, char *res, int size);
  *use | between each part, and a @ as the ending of the command.
  * @ret returns if the line was a label or not
 */
-char parse_command(char *cmd, char *res, line_type lt);
+char parse_command(char *cmd, char *res, int PC,line_type lt);

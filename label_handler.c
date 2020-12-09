@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "defines.h"
+#include "utils.h"
 
 char *labels_array;
 char *addresses_array;
@@ -87,14 +88,20 @@ char compare_label_in_array_index(int index, char *label)
 	return (is_null(array_runner[0]) && is_null(label_runner[0])) || compared_chars_counter == MAX_LABEL_SIZE;
 }
 
-char get_address_from_label(char *label, char *res)
+char get_address_from_label(char *label, char *res, int PC, char cmd_type)
 {
+	char temp[ADDRESS_SIZE+1];
 	for (int index = 0; index < MAX_AMOUNT_OF_LABELS; index++) {
 		if (compare_label_in_array_index(index, label)) {
 			char *address_position = addresses_array + index * ADDRESS_SIZE;
 			for (int j = 0; j < ADDRESS_SIZE; j++) {
-				*(res + j) = *(address_position + j);
+				temp[j] = *(address_position + j);
 			}
+			temp[ADDRESS_SIZE] = 0;
+			int label_PC = strtol(temp, NULL, 16);
+			printf("label number is %d\n",label_PC);
+			if(cmd_type == 0) decimal_to_hex(label_PC - PC, res, 2); /*relative*/
+			else 			  decimal_to_hex(label_PC, res, 2);		/*absolute*/
 			return 1;
 		}
 	}
