@@ -85,28 +85,17 @@ line_type get_line_type(char* line)
 	return lt;
 }
 
-/* add the address of the label as a new line (similar to immediate) */
-void convert_label(char **res, char *label, int PC, line_type lt)
+void add_new_line(char **res)
 {
-	printf("changing label with value, adding as a new line\n");
+	printf("adding a new line\n");
 	*res[0] = '\n';
 	(*res)++;
-	char *label_runner = label;
-	while (label_runner[0] != ' ' && label_runner[0] != '\t' && label_runner[0] != '#' && label_runner[0] != '\n') {
-		label_runner++;
-	}
-	*label_runner = 0;
-	get_address_from_label(label, *res, PC, (lt & JUMP) > 0);
-	(*res) += ADDRESS_SIZE;
-	*label_runner = '@';
 }
 
 /* add the value of the immediate constant as a new line */
 void write_immediate(char **res, char *imm)
 {
-	printf("adding imm as a new line\n");
-	*res[0] = '\n';
-	(*res)++;
+	printf("writing imm const\n");
 	if (imm[0] == '0' && imm[1] == 'x') {
 		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n') {
 			**res = *imm;
@@ -120,10 +109,29 @@ void write_immediate(char **res, char *imm)
 		}
 		imm_runner[0] = 0;
 		int dec = atoi(imm);
-		printf("writing imm %d\n", dec);
-		decimal_to_hex(dec, *res, 5);
-		(*res) += 5;
+		decimal_to_hex(dec, *res, IMMEDIATE_SIZE);
+		(*res) += IMMEDIATE_SIZE;
 		imm_runner[0] = '@';
+	}
+}
+
+/* add the address of the label as a new line (similar to immediate) */
+void write_jumping_immediate(char **res, char *label, int PC, line_type lt)
+{
+	printf("writing jump/branch value as address value\n");
+	char *label_runner = label;
+	while (label_runner[0] != ' ' && label_runner[0] != '\t' && label_runner[0] != '#' && label_runner[0] != '\n') {
+		label_runner++;
+	}
+	*label_runner = 0;
+	char is_label = get_address_from_label(label, *res, PC, (lt & JUMP) > 0);
+	if (is_label) {
+		printf("the value was a label, written to output\n");
+		(*res) += ADDRESS_SIZE;
+		*label_runner = '@';
+	} else {
+		printf("the value is not a label, writing is normal constant\n");
+		write_immediate(res, label);
 	}
 }
 
@@ -170,13 +178,15 @@ char parse_command(char *cmd, char *res, int PC ,line_type lt)
 			printf("parsing an imm const, ");
 			if (lt & (BRANCH | JUMP)) {
 				printf("line has jump/branch\n");
-				convert_label(&res, runner, PC, lt);
+				add_new_line(&res);
+				write_jumping_immediate(&res, runner, PC, lt);
 				/* TODO:
 				   need to add a test if the value is actually a label
 				   and that the command is not using a simple number 
 				*/
 			} else if (lt & IMMEDIATE) {
 				printf("should use it (has $imm)\n");
+				add_new_line(&res);
 				write_immediate(&res, runner);
 			} else {
 				printf("shouldnt use the value (skipping)\n");
