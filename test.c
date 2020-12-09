@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 	printf("running first run\n");
 	first_run(file);
 	rewind(file);
-	printf("running second run\n");
+	printf("\nrunning second run\n");
 	second_run(file);
 	fclose(file);
 	return 0;

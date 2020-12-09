@@ -1,5 +1,5 @@
 START:  
-    jal END		# 0: set $sp = 1
+    jal $imm $zero $zero END		# 0: set $sp = 1
     add $a0, $t1, $t2, 5  # dadafa
     and $s0, $a1, $t0
 END:   

@@ -21,6 +21,7 @@ void first_run(FILE* program)
 		if (lt & LABEL)
 		{
 			extract_label_from_cmd(line, label);
+			printf("extracted a label: '%s'\n", label);
 			decimal_to_hex(PC, addr, ADDRESS_SIZE);
 			insert_label(label, addr);
 		}
