@@ -1,5 +1,17 @@
-START:  
-    jal END		# 0: set $sp = 1
-    add $a0, $t1, $t2, 5  # dadafa
-    and $s0, $a1, $t0
-END:   
+	add $sp, $zero, $imm, 1		# 0: set $sp = 1
+	sll $sp, $sp, $imm, 11		# 2: set $sp = 1 << 11 = 2048
+	add $t0, $zero, $imm, 6		# 4: set $t0 = 6
+	out $imm, $t0, $zero, L3	# 6: set irqhandler as L3
+	add $t0, $zero, $imm, 1		# 8: set $t0 = 1
+	out $t0, $zero, $imm, 2		# a: enable irq2
+	add $t0, $zero, $imm, 176	# c: set $t0 = 176
+	out $t0, $zero, $imm, 19	# e: write to monitorx
+	add $t0, $zero, $imm, 72	# 10: set $t0 = 72
+	out $t0, $zero, $imm, 20	# 12: write to monitory
+	add $t0, $zero, $imm, 255	# 14: set $t0 = 255
+	out $t0, $zero, $imm, 21	# 16: write to monitordata
+	lw $a0, $zero, $imm, 1024	# 18: get x from address 1024
+	jal $imm, $zero, $zero, fib	# 1a: calc $v0 = fib(x)
+	sw $v0, $zero, $imm, 1025	# 1c: store fib(x) in 1025
+	halt $zero, $zero, $zero, 0	# 1e: halt
+fib:

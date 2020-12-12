@@ -72,7 +72,12 @@ void decimal_to_hex(int dec, char *res, int size)
 line_type get_line_type(char* line)
 {
 	line_type lt = NONE;
-	for (int i = 0; i < MAX_LINE_SIZE; i++) {
+	int i = 0;
+	while(line[i] == ' ' || line[i] == '\t'){
+		i++;
+	}
+	if(line[i] == '#') return COMMENT;
+	for (; i < MAX_LINE_SIZE; i++) {
 		char c = line[i];
 		if (c == '#' || c == '\n' || c == '\0') {
 			return lt;
@@ -129,10 +134,10 @@ char parse_command(char *cmd, char *res, int PC ,line_type lt)
 	printf("command to be parsed: %s", cmd);
 	char *runner = cmd;
 	if (lt & LABEL) {
-		printf("got a label line");
+		printf("got a label line\n");
 		while(runner[0] != ':') { runner++; }
 		runner ++;
-		printf("after skipping: .%s.", runner);
+		printf("after skipping: .%s.\n", runner);
 		is_writing = 0;
 	}
 	/* parsing a regular command */
