@@ -2,7 +2,8 @@
 
 #define MAX_AMOUNT_OF_LABELS 100
 #define MAX_LABEL_SIZE 50
-#define ADDRESS_SIZE 8
+#define ADDRESS_SIZE 5
+#define IMMEDIATE_SIZE 5
 #define MAX_LINE_SIZE 500
 #define OPCODE_SIZE 2
 #define REGISTER_SIZE 1
@@ -10,7 +11,7 @@
 #define handle_errors(name, msg, value,condition)\
 	do{\
 		if(condition){\
-			fprintf(stderr, "[%s]: %s %s\n" ,name ,msg, value);\
+			fprintf(stderr, "[%s]: %s '%s'\n" ,name ,msg, value);\
 			exit(1);\
 		}\
 	}while(0)

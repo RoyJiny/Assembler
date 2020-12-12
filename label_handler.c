@@ -47,6 +47,8 @@ char is_full()
 
 void insert_label(char *label, char *address)
 {
+	printf("trying to insert the label '%s' with address '%s'\n", label, address);
+	printf("next free slot is on index '%d'\n", next_free_slot);
 	if (!is_full()) {
 		/* copy label into the label array */
 		char *insert_location = labels_array + next_free_slot * MAX_LABEL_SIZE;
@@ -90,8 +92,9 @@ char compare_label_in_array_index(int index, char *label)
 
 char get_address_from_label(char *label, char *res, int PC, char cmd_type)
 {
+	printf("coverting label %s to address\n", label);
 	char temp[ADDRESS_SIZE+1];
-	for (int index = 0; index < MAX_AMOUNT_OF_LABELS; index++) {
+	for (int index = 0; index < next_free_slot; index++) {
 		if (compare_label_in_array_index(index, label)) {
 			char *address_position = addresses_array + index * ADDRESS_SIZE;
 			for (int j = 0; j < ADDRESS_SIZE; j++) {
@@ -100,8 +103,9 @@ char get_address_from_label(char *label, char *res, int PC, char cmd_type)
 			temp[ADDRESS_SIZE] = 0;
 			int label_PC = strtol(temp, NULL, 16);
 			printf("label number is %d\n",label_PC);
-			if(cmd_type == 0) decimal_to_hex(label_PC - PC, res, 2); /*relative*/
-			else 			  decimal_to_hex(label_PC, res, 2);		/*absolute*/
+			if(cmd_type == 0) decimal_to_hex(label_PC - PC, res, ADDRESS_SIZE); /*relative*/
+			else 			  decimal_to_hex(label_PC, res, ADDRESS_SIZE);		/*absolute*/
+			printf("the written result is: %s\n", res);
 			return 1;
 		}
 	}
