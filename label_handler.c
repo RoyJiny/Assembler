@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "defines.h"
 #include "utils.h"
+#include "defines.h"
 
 char *labels_array;
 char *addresses_array;
@@ -12,17 +12,22 @@ int next_free_slot;
 char is_null(char c) { return c == 0; }
 
 
-void extract_label_from_cmd(char *cmd, char *res)
+char extract_label_from_cmd(char *cmd, char *res)
 {
 	char *cmd_runner = cmd;
 	char *res_runner = res;
-	while (cmd_runner[0] == ' ') { cmd_runner++; }
+	while (cmd_runner[0] == ' ' || cmd_runner[0] == '\t') { cmd_runner++; }
 	while (cmd_runner[0] != ':' && cmd_runner[0] != ' ') {
 		*res_runner = *cmd_runner;
 		res_runner++;
 		cmd_runner++;
 	}
 	*res_runner = 0;
+	/*checks if the line containes only a label*/
+	cmd_runner++;
+	while (cmd_runner[0] == ' ' || cmd_runner[0] == '\t') { cmd_runner++; }
+	if(cmd_runner[0] == '#' || cmd_runner[0] == '\n') return 1;
+	return 0;
 }
 
 void init_labels_array()
@@ -90,24 +95,18 @@ char compare_label_in_array_index(int index, char *label)
 	return (is_null(array_runner[0]) && is_null(label_runner[0])) || compared_chars_counter == MAX_LABEL_SIZE;
 }
 
-char get_address_from_label(char *label, char *res, int PC, char cmd_type)
+char get_address_from_label(char *label, char *res)
 {
 	printf("coverting label %s to address\n", label);
-	char temp[ADDRESS_SIZE+1];
-	for (int index = 0; index < next_free_slot; index++) {
+	for (int index = 0; index < MAX_AMOUNT_OF_LABELS; index++) {
 		if (compare_label_in_array_index(index, label)) {
 			char *address_position = addresses_array + index * ADDRESS_SIZE;
 			for (int j = 0; j < ADDRESS_SIZE; j++) {
-				temp[j] = *(address_position + j);
+				*(res + j) = *(address_position + j);
 			}
-			temp[ADDRESS_SIZE] = 0;
-			int label_PC = strtol(temp, NULL, 16);
-			printf("label number is %d\n",label_PC);
-			if(cmd_type == 0) decimal_to_hex(label_PC - PC, res, ADDRESS_SIZE); /*relative*/
-			else 			  decimal_to_hex(label_PC, res, ADDRESS_SIZE);		/*absolute*/
-			printf("the written result is: %s\n", res);
 			return 1;
 		}
 	}
 	return 0;
 }
+

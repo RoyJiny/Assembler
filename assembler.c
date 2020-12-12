@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "defines.h"
 #include "utils.h"
 #include "label_handler.h"
 #include "assembler.h"
-
+#include "defines.h"
 
 void first_run(FILE* program) 
 {
@@ -17,14 +16,17 @@ void first_run(FILE* program)
 	char *addr  = (char*)malloc(ADDRESS_SIZE * sizeof(char));
 	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
 	{
+		printf("line is: %s with PC=%d\n", line, PC);
+		char only_label = 0;
 		lt = get_line_type(line);
 		if (lt & LABEL)
 		{
-			extract_label_from_cmd(line, label);
+			only_label = extract_label_from_cmd(line, label);
 			printf("extracted a label: '%s'\n", label);
 			decimal_to_hex(PC, addr, ADDRESS_SIZE);
 			insert_label(label, addr);
 		}
+		if(lt == COMMENT || only_label) continue;
 		if (lt & IMMEDIATE) PC++; /*immidiate require an additional line*/
 		PC++;
 	}

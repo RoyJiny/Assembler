@@ -1,6 +1,6 @@
 #include "utils.h"
-#include "defines.h"
 #include "label_handler.h"
+#include "defines.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +8,6 @@
 
 int string_to_reg(char* reg, char* res)
 {
-	printf("register str value is '%s'\n", reg);
 	int reg_num = -1;
 	if (!strcmp(reg, "$zero")) reg_num = ZERO;
 	if (!strcmp(reg, "$imm")) reg_num = IMM;
@@ -52,7 +51,7 @@ int string_to_opcode(char* opcode, char* res)
 	if(!strcmp(opcode,"jal")) opcode_num = JAL;
 	if(!strcmp(opcode,"lw")) opcode_num = LW;
 	if(!strcmp(opcode,"sw")) opcode_num = SW;
-	if(!strcmp(opcode,"reti")) opcode_num = LW;
+	if(!strcmp(opcode,"reti")) opcode_num = RETI;
 	if(!strcmp(opcode,"in")) opcode_num = IN;
 	if(!strcmp(opcode,"out")) opcode_num = OUT;
 	if (!strcmp(opcode, "halt")) opcode_num = HALT;
@@ -63,8 +62,9 @@ int string_to_opcode(char* opcode, char* res)
 
 void decimal_to_hex(int dec, char *res, int size)
 {
+	dec = dec & 0xFFFFF;
 	char format[5];
-	sprintf(format, "%%0%dx", size);
+	sprintf(format, "%%0%dX", size);
 	sprintf(res, format, dec);
 }
 
@@ -90,17 +90,19 @@ line_type get_line_type(char* line)
 	return lt;
 }
 
+/*TODO: add helper function s.a ignore_white_spaces()*/
+
 void add_new_line(char **res)
 {
-	printf("adding a new line\n");
+	//printf("adding a new line\n");
 	*res[0] = '\n';
 	(*res)++;
 }
 
 /* add the value of the immediate constant as a new line */
-void write_immediate(char **res, char *imm)
+void write_const(char **res, char *imm)
 {
-	printf("writing imm const\n");
+	//printf("writing imm const\n");
 	if (imm[0] == '0' && imm[1] == 'x') {
 		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n') {
 			**res = *imm;
@@ -121,35 +123,37 @@ void write_immediate(char **res, char *imm)
 }
 
 /* add the address of the label as a new line (similar to immediate) */
-void write_jumping_immediate(char **res, char *label, int PC, line_type lt)
+void write_immediate(char **res, char *label, int PC, line_type lt)
 {
-	printf("writing jump/branch value as address value\n");
+	//printf("writing jump/branch value as address value\n");
 	char *label_runner = label;
 	while (label_runner[0] != ' ' && label_runner[0] != '\t' && label_runner[0] != '#' && label_runner[0] != '\n') {
 		label_runner++;
 	}
 	*label_runner = 0;
-	char is_label = get_address_from_label(label, *res, PC, (lt & JUMP) > 0);
-	if (is_label) {
-		printf("the value was a label, written to output\n");
-		(*res) += ADDRESS_SIZE;
-		*label_runner = '@';
-	} else {
-		printf("the value is not a label, writing is normal constant\n");
-		write_immediate(res, label);
+	if((label[0] >= 48 && label[0] <=57) || label[0] == '-'){ /*checks if the first char is a number*/
+		write_const(res, label);
+	}
+	else{
+		char is_label = get_address_from_label(label, *res);
+		if (is_label) {
+			//printf("the value was a label, written to output\n");
+			(*res) += ADDRESS_SIZE;
+			*label_runner = '@';
+		}
 	}
 }
 
 char parse_command(char *cmd, char *res, int PC ,line_type lt)
 {
 	char is_writing = 1; /* will be 0 only if the line is only a label */
-	printf("\nnext command to be parsed: '%s'\n", cmd);
+	//printf("\nnext command to be parsed: '%s'\n", cmd);
 	char *runner = cmd;
 	if (lt & LABEL) {
-		printf("line starts with a label\n");
+		//printf("line starts with a label\n");
 		while(runner[0] != ':') { runner++; }
 		runner ++;
-		printf("leftover after skipping label: '%s'\n", runner);
+		//printf("leftover after skipping label: '%s'\n", runner);
 		is_writing = 0;
 	}
 	/* parsing a regular command */
@@ -164,37 +168,27 @@ char parse_command(char *cmd, char *res, int PC ,line_type lt)
 		}
 		*word_ending = 0;
 		if (is_op == 1) {
-			printf("parsing op code\n");
+			//printf("parsing op code\n");
 			int opcode = string_to_opcode(runner, res);
 			handle_errors("parse command", "illegal opcode:",runner, opcode == -1);
 			is_op = 0;
 			res = res + OPCODE_SIZE;
-			printf("opcode number is %d\n", opcode);
+			//printf("opcode number is %d\n", opcode);
 			if (opcode == 15) lt = lt | JUMP;
 			if (opcode >= 9 && opcode <= 14) lt = lt | BRANCH;
 		}
 		else if (runner[0] == '$'){
-			printf("parsing register\n");
+			//printf("parsing register\n");
 			int reg = string_to_reg(runner, res);
 			handle_errors("parse command", "illegal register:",runner, reg == -1);
 			res = res + REGISTER_SIZE;
 		}
 		else {
-			printf("parsing an imm const, ");
-			if (lt & (BRANCH | JUMP)) {
-				printf("line has jump/branch\n");
+			//printf("parsing an imm const, ");
+			if (lt & IMMEDIATE) {
+				//printf("line has jump/branch\n");
 				add_new_line(&res);
-				write_jumping_immediate(&res, runner, PC, lt);
-				/* TODO:
-				   need to add a test if the value is actually a label
-				   and that the command is not using a simple number 
-				*/
-			} else if (lt & IMMEDIATE) {
-				printf("should use it (has $imm)\n");
-				add_new_line(&res);
-				write_immediate(&res, runner);
-			} else {
-				printf("shouldnt use the value (skipping)\n");
+				write_immediate(&res, runner, PC, lt);
 			}
 			*res = '\n';
 			*(res+1) = 0;
@@ -202,7 +196,7 @@ char parse_command(char *cmd, char *res, int PC ,line_type lt)
 		}
 		*word_ending = '@';
 		runner = word_ending + 1;
-		printf("line leftovers: '%s'\n", runner);
+		//printf("line leftovers: '%s'\n", runner);
 	}
 	return is_writing;
 	/* check if \0 is needed at the end of res */

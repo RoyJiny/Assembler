@@ -1,6 +1,5 @@
 #pragma once
 
-
 typedef enum { LABEL=1, IMMEDIATE=2, BRANCH=4, JUMP=8, COMMENT=16, NONE=0 } line_type;
 
 line_type get_line_type(char* line);
