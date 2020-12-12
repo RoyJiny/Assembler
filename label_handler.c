@@ -94,7 +94,7 @@ char get_address_from_label(char *label, char *res, int PC, char cmd_type)
 {
 	printf("coverting label %s to address\n", label);
 	char temp[ADDRESS_SIZE+1];
-	for (int index = 0; index < MAX_AMOUNT_OF_LABELS; index++) {
+	for (int index = 0; index < next_free_slot; index++) {
 		if (compare_label_in_array_index(index, label)) {
 			char *address_position = addresses_array + index * ADDRESS_SIZE;
 			for (int j = 0; j < ADDRESS_SIZE; j++) {
