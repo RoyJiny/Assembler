@@ -17,8 +17,14 @@ typedef struct _node
     struct _node *next;
 } node;
 
-node *addresses_start = NULL;
-node *addresses_current = NULL;
+static node *addresses_start;
+static node *addresses_current;
+
+void init_data_memory_handler()
+{
+    addresses_start = NULL;
+    addresses_current = NULL;
+}
 
 int convert_string_num_to_integer(char *number)
 {
@@ -39,51 +45,60 @@ void add_data(char *data, char *address)
     {
         highest_address = addr;
     }
-    node new_addr = {addr, data, NULL};
+    printf("data to node %s\n", data);
+    printf("address to node %d\n", addr);
+    node new_addr = {
+        .address = addr,
+        .data = data,
+        .next = NULL
+    };
     if (addresses_start == NULL)
     {
-        *addresses_start = new_addr;
-        *addresses_current = new_addr;
+        addresses_start = &new_addr;
+        addresses_current = &new_addr;
     }
     else
     {
         addresses_current->next = &new_addr;
         addresses_current = &new_addr;
     }
+    printf("data: %s\n", addresses_start->data);
+    printf("data: %d\n", addresses_start->address);
 }
 
 void add_data_from_line(char *line)
 {
-    while (line[0] == ' ' || line[0] == '\t')
+    char *line_runner = line;
+    while (line_runner[0] == ' ' || line_runner[0] == '\t')
     {
-        line++;
+        line_runner++;
     }
     // reached '.word'
-    line += 5;
-    while (line[0] == ' ' || line[0] == '\t')
+    line_runner += 5;
+    while (line_runner[0] == ' ' || line_runner[0] == '\t')
     {
-        line++;
+        line_runner++;
     }
     // reached address
-    char address[8];
+    char *address = malloc(9);
     int i = 0;
-    while (line[0] != ' ' || line[0] != '\t')
+    while (line_runner[0] != ' ' && line_runner[0] != '\t')
     {
-        address[i] = line[0];
-        line++;
+        address[i] = line_runner[0];
+        line_runner++;
         i++;
     }
-    while (line[0] == ' ' || line[0] == '\t')
+    while (line_runner[0] == ' ' || line_runner[0] == '\t')
     {
-        line++;
+        line_runner++;
     }
     // reached data
-    char data[8];
+    char *data = malloc(9);
     i = 0;
-    while (line[0] != ' ' || line[0] != '\t')
+    while (line_runner[0] != ' ' && line_runner[0] != '\t' && line_runner[0] != 0 && line_runner[0] != '\n')
     {
-        data[i] = line[0];
-        line++;
+        data[i] = line_runner[0];
+        line_runner++;
         i++;
     }
     add_data(data, address);
@@ -91,16 +106,27 @@ void add_data_from_line(char *line)
 
 void write_data_to_file(FILE *output_file)
 {
+    printf("writing to file\n");
+    if (highest_address == 0) {
+        return;
+    }
     // allocate an array for all addresses
     char **data = malloc((highest_address + 1) * sizeof(char *));
     memset(data, 0, (highest_address + 1) * sizeof(char *));
 
     // add data to the array so we have it sorted
     node *runner = addresses_start;
+    printf("1loc %d\n", addresses_start->address);
+    printf("1data %s\n", addresses_start->data);
     while (runner != NULL)
     {
+        printf("writing to array\n");
+        printf("2loc %d\n", runner->address);
+        printf("2data %s\n", runner->data);
         data[runner->address] = runner->data;
+        printf("1\n");
         runner = runner->next;
+        printf("done\n");
     }
 
     // write the data to the file
@@ -114,7 +140,7 @@ void write_data_to_file(FILE *output_file)
         else
         {
             int value = convert_string_num_to_integer(data_entry);
-            char entry[8];
+            char entry[9];
             sprintf(entry, "%08X", value);
             fputs(entry, output_file);
         }

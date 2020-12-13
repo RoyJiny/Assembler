@@ -17,7 +17,6 @@ void first_run(FILE *program)
 	char *addr = (char *)malloc(ADDRESS_SIZE * sizeof(char));
 	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
 	{
-		printf("line is: %s with PC=%d\n", line, PC);
 		char only_label = 0;
 		lt = get_line_type(line);
 		if (lt & LABEL)
@@ -30,7 +29,7 @@ void first_run(FILE *program)
 		if (lt == COMMENT || only_label)
 			continue;
 		if (lt & IMMEDIATE)
-			PC++; /*immidiate require an additional line*/
+			PC++; /*immediate require an additional line*/
 		PC++;
 	}
 	free(label);
@@ -45,6 +44,9 @@ void second_run(FILE *program)
 	char cmd[2 * MAX_LINE_SIZE + 1];
 	FILE *output_imem = fopen(IMEMIN_FILE, "w");
 	FILE *output_dmem = fopen(DMEMIN_FILE, "w");
+
+	init_data_memory_handler();
+
 	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
 	{
 		lt = get_line_type(line);
@@ -52,6 +54,7 @@ void second_run(FILE *program)
 			continue;
 		if (lt == WORD)
 		{
+			printf("line is a .word\n");
 			add_data_from_line(line);
 			continue;
 		}
