@@ -2,6 +2,9 @@
 
 #include <stdio.h>
 
-void first_run(FILE* proggram);
+#define IMEMIN_FILE "./imemin.txt"
+#define DMEMIN_FILE "./dmemin.txt"
 
-void second_run(FILE* proggram);
+void first_run(FILE *proggram);
+
+void second_run(FILE *proggram);

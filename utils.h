@@ -1,9 +1,17 @@
 #pragma once
 
-typedef enum { LABEL=1, IMMEDIATE=2, BRANCH=4, JUMP=8, COMMENT=16, NONE=0 } line_type;
+typedef enum
+{
+    NONE = 0,
+    LABEL = 1,
+    IMMEDIATE = 2,
+    BRANCH = 4,
+    JUMP = 8,
+    COMMENT = 16,
+    WORD = 32
+} line_type;
 
-line_type get_line_type(char* line);
-
+line_type get_line_type(char *line);
 
 /*
  * TODO: add description.
@@ -12,8 +20,7 @@ line_type get_line_type(char* line);
  * @param string which stored the return value, required size is 4.
  * @ret return the register number that was written to res
  */
-int string_to_reg(char* reg, char* res);
-
+int string_to_reg(char *reg, char *res);
 
 /*
  * TODO: add description.
@@ -21,7 +28,7 @@ int string_to_reg(char* reg, char* res);
  * @param opcode string to be converted , e.g add.
  * @param string which stored the return value.
  */
-int string_to_opcode(char* opcode, char* res);
+int string_to_opcode(char *opcode, char *res);
 
 void decimal_to_hex(int dec, char *res, int size);
 
@@ -30,4 +37,4 @@ void decimal_to_hex(int dec, char *res, int size);
  *use | between each part, and a @ as the ending of the command.
  * @ret returns if the line was a label or not
 */
-char parse_command(char *cmd, char *res, int PC,line_type lt);
+char parse_command(char *cmd, char *res, int PC, line_type lt);

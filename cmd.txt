@@ -56,3 +56,4 @@ L3:
 	out $t3, $zero, $imm, 20	# 62: set monitory
 	out $zero, $zero, $imm, 5	# 64: clear irq2 status
 	reti $zero, $zero, $zero, 0	# 66: return from interrupt
+	.word 1024 7
