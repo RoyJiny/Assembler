@@ -6,10 +6,8 @@
 
 int main(int argc, char** argv) {
 	FILE* file = fopen("./cmd.txt", "r");
-	//printf("running first run\n");
-	//first_run(file);
-	//rewind(file);
-	printf("\nrunning second run\n");
+	first_run(file);
+	rewind(file);
 	second_run(file);
 	fclose(file);
 	return 0;

@@ -110,21 +110,16 @@ line_type get_line_type(char *line)
 {
 	line_type lt = NONE;
 	int i = 0;
-	printf("first: '%s'\n", line);
 	while (line[i] == ' ' || line[i] == '\t')
 	{
 		i++;
 	}
-	printf("second: '%s'\n", line+i);
 	if (line[i] == '#') {
 		return COMMENT;
 	}
-	printf("the char is '%c'\n", line[i]);
 	if (line[i] == '.') {
-		printf("in");
 		return WORD;
 	}
-	printf("out");
 	for (; i < MAX_LINE_SIZE; i++)
 	{
 		char c = line[i];

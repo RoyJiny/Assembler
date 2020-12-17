@@ -52,8 +52,6 @@ char is_full()
 
 void insert_label(char *label, char *address)
 {
-	printf("trying to insert the label '%s' with address '%s'\n", label, address);
-	printf("next free slot is on index '%d'\n", next_free_slot);
 	if (!is_full()) {
 		/* copy label into the label array */
 		char *insert_location = labels_array + next_free_slot * MAX_LABEL_SIZE;
@@ -97,7 +95,6 @@ char compare_label_in_array_index(int index, char *label)
 
 char get_address_from_label(char *label, char *res)
 {
-	printf("coverting label %s to address\n", label);
 	for (int index = 0; index < MAX_AMOUNT_OF_LABELS; index++) {
 		if (compare_label_in_array_index(index, label)) {
 			char *address_position = addresses_array + index * ADDRESS_SIZE;

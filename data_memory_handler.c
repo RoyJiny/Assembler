@@ -6,64 +6,35 @@
 #include <string.h>
 #include <memory.h>
 
-#define NO_DATA "00000000"
-
-static int highest_address = 0;
-
-typedef struct _node
-{
-    int address;
-    char *data;
-    struct _node *next;
-} node;
-
-static node *addresses_start;
-static node *addresses_current;
+static char word_buffers[MAX_ADDRESS][8];
 
 void init_data_memory_handler()
 {
-    addresses_start = NULL;
-    addresses_current = NULL;
+    memset(word_buffers, '0', MAX_ADDRESS * 8);
 }
 
 int convert_string_num_to_integer(char *number)
 {
-    if (number[0] == '0' && number[1] == 'x')
+    char tmp[8];
+    strncpy(tmp, number, 8);
+    if (tmp[0] == '0' && tmp[1] == 'x')
     { //hex
-        return (int)strtol(number, NULL, 16);
+        return (int)strtol(tmp, NULL, 16);
     }
     else
     { // decimal
-        return atoi(number);
+        return atoi(tmp);
     }
 }
 
 void add_data(char *data, char *address)
 {
     int addr = convert_string_num_to_integer(address);
-    if (addr > highest_address)
-    {
-        highest_address = addr;
+    if (addr >= MAX_ADDRESS) {
+        printf("Address is too large");
+        return;
     }
-    printf("data to node %s\n", data);
-    printf("address to node %d\n", addr);
-    node new_addr = {
-        .address = addr,
-        .data = data,
-        .next = NULL
-    };
-    if (addresses_start == NULL)
-    {
-        addresses_start = &new_addr;
-        addresses_current = &new_addr;
-    }
-    else
-    {
-        addresses_current->next = &new_addr;
-        addresses_current = &new_addr;
-    }
-    printf("data: %s\n", addresses_start->data);
-    printf("data: %d\n", addresses_start->address);
+    strncpy(word_buffers[addr], data, 8);
 }
 
 void add_data_from_line(char *line)
@@ -106,45 +77,12 @@ void add_data_from_line(char *line)
 
 void write_data_to_file(FILE *output_file)
 {
-    printf("writing to file\n");
-    if (highest_address == 0) {
-        return;
-    }
-    // allocate an array for all addresses
-    char **data = malloc((highest_address + 1) * sizeof(char *));
-    memset(data, 0, (highest_address + 1) * sizeof(char *));
-
-    // add data to the array so we have it sorted
-    node *runner = addresses_start;
-    printf("1loc %d\n", addresses_start->address);
-    printf("1data %s\n", addresses_start->data);
-    while (runner != NULL)
+    for (int i = 0; i < MAX_ADDRESS; i++)
     {
-        printf("writing to array\n");
-        printf("2loc %d\n", runner->address);
-        printf("2data %s\n", runner->data);
-        data[runner->address] = runner->data;
-        printf("1\n");
-        runner = runner->next;
-        printf("done\n");
+        int value = convert_string_num_to_integer(word_buffers[i]);
+        char entry[9];
+        sprintf(entry, "%08X", value);
+        fputs(entry, output_file);
+        fputs("\n", output_file);
     }
-
-    // write the data to the file
-    for (int i = 0; i <= highest_address; i++)
-    {
-        char *data_entry = data[i];
-        if (data_entry == 0)
-        {
-            fputs(NO_DATA, output_file);
-        }
-        else
-        {
-            int value = convert_string_num_to_integer(data_entry);
-            char entry[9];
-            sprintf(entry, "%08X", value);
-            fputs(entry, output_file);
-        }
-    }
-
-    free(data);
 }

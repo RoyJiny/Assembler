@@ -22,7 +22,6 @@ void first_run(FILE *program)
 		if (lt & LABEL)
 		{
 			only_label = extract_label_from_cmd(line, label);
-			printf("extracted a label: '%s'\n", label);
 			decimal_to_hex(PC, addr, ADDRESS_SIZE);
 			insert_label(label, addr);
 		}
@@ -54,7 +53,6 @@ void second_run(FILE *program)
 			continue;
 		if (lt == WORD)
 		{
-			printf("line is a .word\n");
 			add_data_from_line(line);
 			continue;
 		}
