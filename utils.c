@@ -106,6 +106,14 @@ void decimal_to_hex(int dec, char *res, int size)
 	sprintf(res, format, dec);
 }
 
+void skip_white_spaces(char **line)
+{
+	while ((*line)[0] == ' ' || (*line)[0] == '\t')
+	{
+		(*line)++;
+	}
+}
+
 line_type get_line_type(char *line)
 {
 	line_type lt = NONE;
@@ -117,7 +125,7 @@ line_type get_line_type(char *line)
 	if (line[i] == '#') {
 		return COMMENT;
 	}
-	if (line[i] == '.') {
+	if (line[i] == '.') {/*TODO: compare*/
 		return WORD;
 	}
 	for (; i < MAX_LINE_SIZE; i++)
@@ -151,7 +159,7 @@ void write_const(char **res, char *imm)
 {
 	//printf("writing imm const\n");
 	if (imm[0] == '0' && imm[1] == 'x')
-	{
+	{/*TODO: include 0x ????*/
 		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n')
 		{
 			**res = *imm;
@@ -174,7 +182,8 @@ void write_const(char **res, char *imm)
 	}
 }
 
-/* add the address of the label as a new line (similar to immediate) */
+/* if const is a label: add the address of the label as a new line.
+ * else, writes the immediate to a new line*/
 void write_immediate(char **res, char *label, int PC, line_type lt)
 {
 	//printf("writing jump/branch value as address value\n");

@@ -31,8 +31,8 @@ void add_data(char *data, char *address)
 {
     int addr = convert_string_num_to_integer(address);
     if (addr >= MAX_ADDRESS) {
-        printf("Address is too large");
-        return;
+        fprintf(stderr, "got addrs %d. The largest addrs supported is %d'\n" ,addr ,MAX_ADDRESS);
+		exit(1);
     }
     strncpy(word_buffers[addr], data, 8);
 }
