@@ -1,11 +1,11 @@
 
-			add $t0, $zero, $zero, 352		# $t0 = 352
+			add $t0, $zero, $imm, 351		# $t0 = 351
 			lw $s0, $zero, $imm, 0x100		# $s0 = radius
 			mul $s0, $s0, $s0, 0			# $s0 = radius^2
 FIRST_LOOP:
 			sub $t0, $t0, $imm, 1			# $t0 -= 1
 			beq $imm, $zero, $t0, DONE	
-			add $t1, $zero, $zero, 288		# $t1 = 288
+			add $t1, $zero, $imm, 287		# $t1 = 287
 SECOND_LOOP:
 			add $a0, $zero, $imm, 175		# x axis of the center
 			add $a1, $zero, $imm, 143		# y axis of the center
