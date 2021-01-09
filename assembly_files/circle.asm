@@ -19,8 +19,8 @@ SECOND_LOOP:
 			bgt $imm, $a1, $s0, SECOND_LOOP # jump to SECOND_LOOP if $a1 > radius^2
 WRITE_PIXEL:
 			out $t0, $zero, $imm, 19		# monitorx = $t0
-			out $t1, $zero, $imm, 20		# monitory = $t0
-			add $a1, $zero, $imm, 255		# $a1 = 255
+			out $t1, $zero, $imm, 20		# monitory = $t1
+			add $a1, $zero, $imm, 100		# $a1 = 255
 			out $a1, $zero, $imm, 21		# monitordata = 255
 			add $a1, $zero, $imm, 1			# $a1 = 1
 			out $a1, $zero, $imm, 18		# monitorcmd = 1

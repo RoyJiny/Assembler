@@ -9,7 +9,7 @@
 
 void first_run(FILE *program)
 {
-	init_labels_array(); /*TODO: free somewhere*/
+	init_labels_array();
 	int PC = 0;
 	line_type lt;
 	char line[MAX_LINE_SIZE];
@@ -66,4 +66,5 @@ void second_run(FILE *program)
 	write_data_to_file(output_dmem);
 	fclose(output_imem);
 	fclose(output_dmem);
+	free_labels_array();
 }

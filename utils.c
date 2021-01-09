@@ -157,29 +157,33 @@ void add_new_line(char **res)
 /* add the value of the immediate constant as a new line */
 void write_const(char **res, char *imm)
 {
-	//printf("writing imm const\n");
 	if (imm[0] == '0' && imm[1] == 'x')
-	{/*TODO: include 0x ????*/
-		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n')
+	{
+		imm += 2;
+		char hex_imm[IMMEDIATE_SIZE];
+		int count = 0;
+		while (imm[0] != ' ' && imm[0] != '\t' && imm[0] != '#' && imm[0] != '\n' && imm[0] != 0)
 		{
-			**res = *imm;
-			(*res)++;
-			imm++;
+			hex_imm[count] = imm[0];
+			imm ++;
+			count ++;
 		}
+		memset(*res, '0', IMMEDIATE_SIZE-count);
+		strncpy(*res+(IMMEDIATE_SIZE-count), hex_imm, count);
 	}
 	else
 	{
 		char *imm_runner = imm;
-		while (imm_runner[0] != ' ' && imm_runner[0] != '\t' && imm_runner[0] != '#' && imm_runner[0] != '\n')
+		while (imm_runner[0] != ' ' && imm_runner[0] != '\t' && imm_runner[0] != '#' && imm_runner[0] != '\n' && imm_runner[0] != 0)
 		{
 			imm_runner++;
 		}
 		imm_runner[0] = 0;
 		int dec = atoi(imm);
 		decimal_to_hex(dec, *res, IMMEDIATE_SIZE);
-		(*res) += IMMEDIATE_SIZE;
 		imm_runner[0] = '@';
 	}
+	(*res) += IMMEDIATE_SIZE;
 }
 
 /* if const is a label: add the address of the label as a new line.
