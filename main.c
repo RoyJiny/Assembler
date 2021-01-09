@@ -5,7 +5,7 @@
 
 
 int main(int argc, char** argv) {
-	FILE* file = fopen("./cmd.txt", "r");
+	FILE* file = fopen("./assembly_files/circle.asm", "r");
 	first_run(file);
 	rewind(file);
 	second_run(file);
