@@ -11,7 +11,7 @@
 #define handle_errors(name, msg, value,condition)\
 	do{\
 		if(condition){\
-			fprintf(stderr, "[%s]: %s '%s'\n" ,name ,msg, value);\
+			fprintf(stderr, "\n [%s]: %s '%s'\n" ,name ,msg, value);\
 			exit(1);\
 		}\
 	}while(0)

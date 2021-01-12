@@ -25,7 +25,7 @@ void first_run(FILE *program)
 			decimal_to_hex(PC, addr, ADDRESS_SIZE);
 			insert_label(label, addr);
 		}
-		if (lt == COMMENT || only_label)
+		if (lt == COMMENT || only_label || lt == EMPTY_LINE)
 			continue;
 		if (lt & IMMEDIATE)
 			PC++; /*immediate require an additional line*/
@@ -49,7 +49,7 @@ void second_run(FILE *program)
 	while (fgets(line, MAX_LINE_SIZE, program) != NULL) /*get current line*/
 	{
 		lt = get_line_type(line);
-		if (lt == COMMENT)
+		if (lt == COMMENT || lt == EMPTY_LINE)
 			continue;
 		if (lt == WORD)
 		{

@@ -11,7 +11,7 @@ int next_free_slot;
 
 char is_null(char c) { return c == 0; }
 
-
+//TODO: check label : 'L1  : '
 char extract_label_from_cmd(char *cmd, char *res)
 {
 	char *cmd_runner = cmd;
@@ -26,7 +26,7 @@ char extract_label_from_cmd(char *cmd, char *res)
 	/*checks if the line containes only a label*/
 	cmd_runner++;
 	while (cmd_runner[0] == ' ' || cmd_runner[0] == '\t') { cmd_runner++; }
-	if(cmd_runner[0] == '#' || cmd_runner[0] == '\n') return 1;
+	if(cmd_runner[0] == '#' || cmd_runner[0] == '\n' || cmd_runner[0] == 0 || cmd_runner[0] == '\r') return 1;
 	return 0;
 }
 

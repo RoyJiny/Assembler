@@ -8,7 +8,8 @@ typedef enum
     BRANCH = 4,
     JUMP = 8,
     COMMENT = 16,
-    WORD = 32
+    WORD = 32,
+    EMPTY_LINE = 64
 } line_type;
 
 /*

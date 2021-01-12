@@ -122,6 +122,7 @@ line_type get_line_type(char *line)
 	{
 		i++;
 	}
+	if (line[i] == 0 || line[i] == '\n') return EMPTY_LINE;
 	if (line[i] == '#') {
 		return COMMENT;
 	}
@@ -235,15 +236,15 @@ char parse_command(char *cmd, char *res, int PC, line_type lt)
 	{
 		runner++;
 	}
-	while (runner[0] != '#' && runner[0] != '\n')
+	while (runner[0] != '#' && runner[0] != '\n' && runner[0] != 0 && runner[0] != '\r')
 	{
-		while (runner[0] == ' ' || runner[0] == '\t')
+		while (runner[0] == ' ' || runner[0] == '\t' || runner[0] == ',')
 		{
 			runner++;
 		}
 		is_writing = 1;
 		char *word_ending = runner;
-		while (word_ending[0] != ',' && word_ending[0] != ' ' && word_ending[0] != '\n' && word_ending[0] != '\t')
+		while (word_ending[0] != ',' && word_ending[0] != ' ' && word_ending[0] != '\n' && word_ending[0] != '\t' && word_ending[0] != '\r')
 		{
 			word_ending++;
 		}

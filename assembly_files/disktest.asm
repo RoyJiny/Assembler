@@ -4,7 +4,7 @@
 			
 			beq $imm, $zero, $zero, READ_SECTOR
 BUSY_WAIT:
-			add $t0, $imm, $zero, 17			# $t0 = $diskstatus
+			add $t0, $imm, $zero, 17			# $t0 = &diskstatus
 			in $t0, $zero, $t0, 0				# $t0 = diskstatus
 			bne $imm, $t0, $zero, BUSY_WAIT
 			beq $ra, $zero, $zero, 0			# return
@@ -15,20 +15,19 @@ READ_SECTOR:
 			out $a1, $zero, $t0, 0				# disksector = $a1
 			add $t0, $t0, $imm, 1				# $t0 += 1 -> $t0 = &diskbuffer
 			out $a0, $t0, $zero, 0				# diskbudffer = $a0
-			sub $t0, $t0, imm, 2				# $t0 -= 2 -> $t0 = &diskcmd
-			out $imm, $t0, $imm, 1				# diskcmd = 1
+			sub $t0, $t0, $imm, 2				# $t0 -= 2 -> $t0 = &diskcmd
+			out $imm, $t0, $zero, 1				# diskcmd = 1
 			
 			add $a0, $a0, $imm, 128				# $a0 += 128
 			add $a1, $a1, $imm, 1				# $a1 += 1
 			sub $t0 , $imm, $a1, 4				# $t0 = 4 - $a1
 			bne $imm, $t0, $zero, READ_SECTOR
-
-WRITE_SECTOR:
 			add $t0, $zero, $zero, 0			# $t0 = 0
 			add $t1, $zero, $imm, 128			# $t1 = 128
 			add $t2, $zero, $imm, 256			# $t2 = 256
 			add $t3, $zero, $imm, 384			# $t3 = 384
 			add $s0, $zero, $imm, 512			# $s0 = 512
+WRITE_SECTOR:
 			lw $a0, $zero, $t0, 0				# $a0 = mem[$t0]
 			lw $a1, $zero, $t1, 0 				# $a1 = mem[$t1]
 			xor $a0, $a0, $a1, 0				# $a0 = $a1 ^ $a0
@@ -50,7 +49,7 @@ WRITE_SECTOR:
 			out $imm, $zero, $t0, 4				# disksector = 4
 			add $t0, $t0, $imm, 1				# $t0 += 1 -> $t0 = &diskbuffer
 			out $imm, $t0, $zero, 512			# diskbudffer = 512
-			sub $t0, $t0, imm, 2				# $t0 -= 2 -> $t0 = &diskcmd
+			sub $t0, $t0, $imm, 2				# $t0 -= 2 -> $t0 = &diskcmd
 			out $imm, $t0, $imm, 2				# diskcmd = 2
 			jal $imm, $zero, $zero, BUSY_WAIT	# wait for disk to finish
 			halt $zero, $zero, $zero, 0			# halt
