@@ -36,7 +36,7 @@ WRITE_SECTOR:
 			lw $a1, $zero, $t3, 0 				# $a1 = mem[$t3]
 			xor $a0, $a0, $a1, 0				# $a0 = $a1 ^ $a0
 			sw $a0, $zero, $s0, 0				# mem[$s0] = $a0
-			add $t0, $t0, $zero, 1				# $t0 += 1
+			add $t0, $t0, $imm, 1				# $t0 += 1
 			add $t1, $t1, $imm, 1				# $t1 += 1
 			add $t2, $t2, $imm, 1				# $t2 += 1
 			add $t3, $t3, $imm, 1				# $t3 += 1
@@ -50,7 +50,7 @@ WRITE_SECTOR:
 			add $t0, $t0, $imm, 1				# $t0 += 1 -> $t0 = &diskbuffer
 			out $imm, $t0, $zero, 512			# diskbudffer = 512
 			sub $t0, $t0, $imm, 2				# $t0 -= 2 -> $t0 = &diskcmd
-			out $imm, $t0, $imm, 2				# diskcmd = 2
+			out $imm, $t0, $zero, 2				# diskcmd = 2
 			jal $imm, $zero, $zero, BUSY_WAIT	# wait for disk to finish
 			halt $zero, $zero, $zero, 0			# halt
 			
